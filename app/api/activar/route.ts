@@ -48,7 +48,14 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (errorBusqueda) {
-    return NextResponse.json({ error: "Error al consultar la licencia." }, { status: 500 });
+    // Se loguea el detalle real en los logs de Vercel (Runtime Logs) para
+    // poder diagnosticar — al cliente no le mandamos el detalle interno,
+    // por si este endpoint queda expuesto a terceros más adelante.
+    console.error("Error consultando licencias en Supabase:", errorBusqueda);
+    return NextResponse.json(
+      { error: "Error al consultar la licencia.", detalle: errorBusqueda.message },
+      { status: 500 }
+    );
   }
   if (!licencia) {
     return NextResponse.json({ error: "Clave inválida." }, { status: 404 });
